@@ -1,32 +1,35 @@
 require("dotenv").config();
+const cors = require("cors");
 
 const express = require("express");
-const workoutRoutes = require("./routes/workouts");
 const mongoose = require("mongoose");
+const workoutRoutes = require("./routes/workouts");
 
-//express app
+// express app
 const app = express();
 
-//middleware setting up a log of what is getting called from the backend
+// middleware
 app.use(express.json());
+app.use(cors({ origin: "http://localhost:5173" }));
 
 app.use((req, res, next) => {
   console.log(req.path, req.method);
   next();
 });
 
-//routes request - response
+// routes
 app.use("/api/workouts", workoutRoutes);
 
-// connect to DB
+// connect to db
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
-    // liste for requests
+    console.log("connected to database");
+    // listen to port
     app.listen(process.env.PORT, () => {
-      console.log("connected to DB, listening on port: ", process.env.PORT);
+      console.log("listening for requests on port", process.env.PORT);
     });
   })
-  .catch((error) => {
-    console.log(error);
+  .catch((err) => {
+    console.log(err);
   });
